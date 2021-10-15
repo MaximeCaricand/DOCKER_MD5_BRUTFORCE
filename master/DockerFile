@@ -1,0 +1,6 @@
+# Make Tetris game
+FROM node
+COPY ./ Master
+WORKDIR /Master
+RUN npm i
+CMD npm run start
