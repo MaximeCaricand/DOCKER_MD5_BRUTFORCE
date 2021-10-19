@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+   <head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta charset="utf-8">
+ 	<title>Walkthrough</title>
+<!--      <script
+         id="sap-ui-bootstrap"
+         src="/resources/sap-ui-core.js" 
+         data-sap-ui-theme="sap_bluecrystal"
+         data-sap-ui-libs="sap.m"
+         data-sap-ui-compatVersion="edge"
+         data-sap-ui-preload="async" >
+      </script>
+      <script>
+         sap.ui.getCore().attachInit(function () {
+             alert("UI5 is ready");
+         });
+      </script> -->
+   </head>
+   <body>
+      <p>DOCKER DUDE</p>
+      
+      <label id="hashlab" for="hash">Hash à envoyer au master : </label>
+
+      <input type="text" id="hashinput" name="hash" required minlength="1" maxlength="8" size="10" placeholder="mot en MD5">
+      <button onclick="envoieMaster()">send</button>
+
+   </body>
+</html>
+
+<script>
+      function envoieMaster() {
+        console.log(document.getElementById("hashinput").value);
+      }
+</script>
