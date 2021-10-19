@@ -1,33 +1,18 @@
-import * as ws from 'ws';
-import * as http from 'http';
+import * as lib from "./lib";
+import { Master } from "./lib/Master";
 
-const port = 30000;
-const address = '127.0.0.1'
+async function start() {
+    const master = new Master();
+    await master.start(lib.host, lib.port, 2);
+    await sleep(1000);
+    master.bruteForce('28b662d883b6d76fd96e4ddc5e9ba780');
+}
 
-const server = http.createServer();
-const wss = new ws.WebSocketServer({ server });
+start();
 
-wss.on('connection', function (client, request) {
 
-    // retrieve the name in the cookies
-    var cookies = request.headers.cookie.split(';');
-    var wsname = cookies.find((c) => {
-        return c.match(/^\s*wsname/) !== null;
+function sleep(ms: number) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
     });
-    wsname = wsname.split('=')[1];
-
-    // greet the newly connected user
-    client.send('Welcome, ' + decodeURIComponent(wsname) + '!');
-
-    // Register a listener on each message of each connection
-    client.on('message', function (message) {
-        console.log(message);
-    });
-});
-
-// http sever starts listening on given host and port.
-server.listen(port, address, function () {
-    const address = server.address() as ws.AddressInfo;
-    console.log(`Listening on ${address.address}:${address.port}`);
-});
-
+}
