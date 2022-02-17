@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  slave:
+    image: itytophile/hash-slave:latest
+    networks:
+      - backend
+    command: './hash_extractor -s ws://master:3100'
+
+  master:
+    build: ./master
+    ports:
+      - 3100:3100
+      - 3200:3200
+    networks:
+      - backend
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  # dude:
+  #   build: ./dude
+  #   depends_on:
+  #     - master
+  #   ports:
+  #     - 3000:3000
+
+networks:
+  backend:
