@@ -29,6 +29,9 @@ const replicaPerHash = 4;
             console.log(`New hash ${hash}`);
             pendingSlavePools.push(new SlavePool(replicaPerHash, hash, dude));
             updateSlavesReplicas();
+            updateSlavesReplicas();
+            updateSlavesReplicas();
+            updateSlavesReplicas();
         });
     });
 
@@ -54,11 +57,13 @@ function getNbReplicasAndClear(): number {
             inProgessSlavePools.splice(i, 1);
         }
     }
+    console.log(`pendingSlavePools length ${pendingSlavePools.length}`);
+    console.log(`inProgessSlavePools length ${inProgessSlavePools.length}`);
     return nbReplicas;
 }
 
 function updateSlavesReplicas() {
-    exec('docker run --init itytophile/hash-slave /slave ws://localhost:3200', (error, stdout, stderr) => {
+    exec('docker run --network=host servuc/hash_extractor ./hash_extractor s ws://localhost:3200', (error, stdout, stderr) => {
         let message: string;
         if (error) {
             message = `[EXEC] error: ${error.message}`;
