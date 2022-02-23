@@ -4,22 +4,17 @@ import { Slave } from "./Slave";
 
 export class SlavePool {
 
-    readonly SPLITED_ALPHABET = [
-        ['a', 'o9999'],
-        ['o9999', 'D9999'],
-        ['D9999', 'S9999'],
-        ['S9999', '99999']
-    ]
-
     slaves: Array<Slave>;
     nbSlaves: number;
+    splittedDictionary: Array<Array<string>>
     hash: string;
     dude: WebSocket;
 
-    constructor(nbSlaves: number, hash: string, dude: WebSocket) {
+    constructor(splittedDictionary: Array<Array<string>>, hash: string, dude: WebSocket) {
         this.dude = dude;
         this.hash = hash;
-        this.nbSlaves = nbSlaves;
+        this.nbSlaves = splittedDictionary.length;
+        this.splittedDictionary = splittedDictionary;
         this.slaves = [];
     }
 
@@ -33,10 +28,9 @@ export class SlavePool {
             const messageContent = message.toString()
             if (messageContent.startsWith('found')) {
                 console.log(messageContent)
-                this.slaves.forEach(slave => slave.stopSearch());
+                this.dude.send(messageContent);
                 this.slaves.forEach(slave => slave.exit());
                 this.slaves = [];
-                this.dude.send(messageContent);
             }
         });
         if (this.slaves.length === this.nbSlaves) {
@@ -47,6 +41,6 @@ export class SlavePool {
     }
 
     private getBruteForceRange(slaveIndex: number): [string, string] {
-        return [...this.SPLITED_ALPHABET[slaveIndex]] as [string, string];
+        return [...this.splittedDictionary[slaveIndex]] as [string, string];
     }
 }
