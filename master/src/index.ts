@@ -59,7 +59,7 @@ function getNbReplicasAndClear(): number {
 }
 
 function updateSlavesReplicas() {
-    exec(`docker run --network=host itytophile/hash-slave /slave ws://localhost:3200`, (error, stdout, stderr) => {
+    exec(`docker run --network=host itytophile/hash-slave /slave ws://master:3200`, (error, stdout, stderr) => {
         let message: string;
         if (error) {
             message = `[EXEC] error: ${error.message}`;

@@ -21,12 +21,13 @@ services:
       - backend
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-  # dude:
-  #   build: ./dude
-  #   depends_on:
-  #     - master
-  #   ports:
-  #     - 3000:3000
+
+  dude:
+    build: ./dude
+    depends_on:
+      - master
+    ports:
+      - 3000:3000
 
 networks:
   backend:
