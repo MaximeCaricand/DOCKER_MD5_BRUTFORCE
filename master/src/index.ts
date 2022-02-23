@@ -29,7 +29,9 @@ const splittedDictionary: Array<Array<string>> = getBruteForceRange(replicaPerHa
             const hash = message.toString();
             console.log(`New hash ${hash}`);
             pendingSlavePools.push(new SlavePool(splittedDictionary, hash, dude));
-            updateSlavesReplicas();
+            for (let i = 0; i < replicaPerHash; i++) {
+                updateSlavesReplicas();
+            }
         });
     });
 
@@ -57,7 +59,7 @@ function getNbReplicasAndClear(): number {
 }
 
 function updateSlavesReplicas() {
-    exec(`docker service scale -d slave=${getNbReplicasAndClear()}`, (error, stdout, stderr) => {
+    exec(`docker run --network=host itytophile/hash-slave /slave ws://localhost:3200`, (error, stdout, stderr) => {
         let message: string;
         if (error) {
             message = `[EXEC] error: ${error.message}`;

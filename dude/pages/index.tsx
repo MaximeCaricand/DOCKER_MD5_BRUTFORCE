@@ -1,11 +1,12 @@
 import Head from 'next/head';
 import { Component } from 'react';
+import { CronJob, CronTime } from 'cron';
 
 const bruteForceMode = [
   { view: 'Pause', speed: 0 },
-  { view: 'Easy', speed: 2000 },
-  { view: 'Medium', speed: 100 },
-  { view: 'Hard', speed: 500 },
+  { view: 'Easy', speed: 5 },
+  { view: 'Medium', speed: 3 },
+  { view: 'Hard', speed: 1 },
 ];
 
 type HomeState = {
@@ -14,6 +15,7 @@ type HomeState = {
   result: string;
   lastResultDate: number;
   modeIndex: number;
+  cron: CronJob;
 }
 
 export default class Home extends Component<{}, any> {
@@ -22,13 +24,12 @@ export default class Home extends Component<{}, any> {
     super(props);
     this.state = {
       hash: '',
-      result: 'dqsdqsdqsdqd',
+      result: '',
       lastResultDate: 0,
       modeIndex: 0
     }
     this.updateHash = this.updateHash.bind(this);
     this.updateBruteforceMode = this.updateBruteforceMode.bind(this);
-    this.sendHash = this.sendHash.bind(this);
   }
 
   componentDidMount() {
@@ -41,8 +42,8 @@ export default class Home extends Component<{}, any> {
     ws.onmessage = message => {
       const messageContent = message.toString();
       this.updateState({ result: messageContent, lastResultDate: Date.now() });
-      console.log(messageContent);
     };
+    this.updateState({ ws, cron: new CronJob('* * * * * *', () => this.state.ws.send(this.state.hash)) });
   }
 
   updateState(newState: Partial<HomeState>) {
@@ -51,24 +52,17 @@ export default class Home extends Component<{}, any> {
 
   updateHash(event: any) {
     event.preventDefault();
+    this.state.cron.stop();
     this.updateState({ modeIndex: 0, hash: event.target.value });
   }
 
   updateBruteforceMode(modeIndex: number) {
-    const lastIndex = this.state.modeIndex;
     this.updateState({ modeIndex });
-    this.sendHash(lastIndex);
-  }
-
-  sendHash(lastIndex: number) {
-    if (this.state.ws) {
-      (async () => {
-        while (this.state.modeIndex > 0 && this.state.modeIndex === lastIndex) {
-          await new Promise(resolve => setTimeout(resolve, bruteForceMode[this.state.modeIndex].speed));
-          this.state.ws.send(this.state.hash);
-          console.log(this.state.hash);
-        }
-      })();
+    if (modeIndex) {
+      this.state.cron.setTime(new CronTime(`*/${bruteForceMode[modeIndex].speed} * * * * *`));
+      this.state.cron.start();
+    } else {
+      this.state.cron.stop();
     }
   }
 
@@ -96,7 +90,7 @@ export default class Home extends Component<{}, any> {
             <div className='row'>
               <div className='col-md-12 text-center mt-2 mb-5'>
                 <h2>Put your hash here</h2>
-                <input type='text' defaultValue={this.state.url} onChange={this.updateHash} />
+                <input type='text' value={this.state.hash} autoComplete='false' onChange={this.updateHash} />
               </div>
               {modes}
               <div className='col-md-12 text-center mt-5 mb-5'>
