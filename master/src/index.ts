@@ -8,7 +8,9 @@ const SlavesPort = 3200;
 
 const pendingSlavePools: Array<SlavePool> = [];
 const inProgessSlavePools: Array<SlavePool> = [];
-const replicaPerHash = 4;
+const replicaPerHash: number = 14;
+const hashMaxLength: number = 5;
+const splittedDictionary: Array<Array<string>> = getBruteForceRange(replicaPerHash, hashMaxLength);
 
 (async () => {
     // Websocket setup
@@ -23,20 +25,15 @@ const replicaPerHash = 4;
     const slavesWs = new WebSocketServer({ server: slavesServer });
 
     dudesWs.on('connection', (dude: WebSocket) => {
-        console.log('Hello new dude');
         dude.on('message', message => {
             const hash = message.toString();
             console.log(`New hash ${hash}`);
-            pendingSlavePools.push(new SlavePool(replicaPerHash, hash, dude));
-            updateSlavesReplicas();
-            updateSlavesReplicas();
-            updateSlavesReplicas();
+            pendingSlavePools.push(new SlavePool(splittedDictionary, hash, dude));
             updateSlavesReplicas();
         });
     });
 
     slavesWs.on('connection', (slave: WebSocket) => {
-        console.log('Hello new slave');
         if (pendingSlavePools.length) {
             pendingSlavePools[0].connectSlave(slave);
             if (pendingSlavePools[0].slavesCount === replicaPerHash) {
@@ -44,7 +41,6 @@ const replicaPerHash = 4;
             }
         }
     });
-
 })();
 
 // get the number of current replicas and clear 
@@ -57,13 +53,11 @@ function getNbReplicasAndClear(): number {
             inProgessSlavePools.splice(i, 1);
         }
     }
-    console.log(`pendingSlavePools length ${pendingSlavePools.length}`);
-    console.log(`inProgessSlavePools length ${inProgessSlavePools.length}`);
     return nbReplicas;
 }
 
 function updateSlavesReplicas() {
-    exec('docker run --network=host servuc/hash_extractor ./hash_extractor s ws://localhost:3200', (error, stdout, stderr) => {
+    exec(`docker service scale -d slave=${getNbReplicasAndClear()}`, (error, stdout, stderr) => {
         let message: string;
         if (error) {
             message = `[EXEC] error: ${error.message}`;
@@ -74,23 +68,26 @@ function updateSlavesReplicas() {
         }
         console.log(message);
     });
-
-    // exec(`docker service scale -d slave=${getNbReplicasAndClear()}`, (error, stdout, stderr) => {
-    //     let message: string;
-    //     if (error) {
-    //         message = `[EXEC] error: ${error.message}`;
-    //     } else if (stderr) {
-    //         message = `[EXEC] stderr: ${stderr}`;
-    //     } else {
-    //         message = `[EXEC] stdout: ${stdout}`
-    //     }
-    //     console.log(message);
-    // });
+    // docker run --network=host itytophile/hash-slave /slave ws://localhost:3200
 }
 
+function getBruteForceRange(replicaPerHash: number, hashMaxLength: number) {
+    const dictionary = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    const nbPossibilty: number = Math.pow(dictionary.length, hashMaxLength);
+    const nbPossibilityPerSlave: number = Math.round(nbPossibilty / replicaPerHash);
+    const results: Array<Array<string>> = [];
 
-
-
-
-
-
+    let lastWord = "a";
+    for (let i = 0; i < replicaPerHash - 1; i++) {
+        const entryIndex = Math.round(((nbPossibilityPerSlave * dictionary.length) / nbPossibilty)) * (i + 1) - 1;
+        const newWord = dictionary[entryIndex] + "9999";
+        results[i] = [lastWord, newWord];
+        lastWord = newWord;
+    }
+    if (lastWord !== "99999") {
+        results[results.length] = [lastWord, "99999"];
+    }
+    return results;
+}

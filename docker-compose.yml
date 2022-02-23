@@ -2,10 +2,15 @@ version: '3.8'
 
 services:
   slave:
-    image: itytophile/hash-slave:latest
+    image: itytophile/hash-slave
     networks:
       - backend
-    command: './hash_extractor -s ws://master:3100'
+    depends_on:
+      - master
+    command: /slave ws://master:3200
+    deploy:
+      mode: replicated
+      replicas: 0
 
   master:
     build: ./master
