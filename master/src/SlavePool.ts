@@ -28,7 +28,7 @@ export class SlavePool {
             const messageContent = message.toString()
             if (messageContent.startsWith('found')) {
                 console.log(messageContent)
-                this.dude.send(messageContent);
+                this.dude.send(messageContent.split(' ')[2]);
                 this.slaves.forEach(slave => slave.exit());
                 this.slaves = [];
             }

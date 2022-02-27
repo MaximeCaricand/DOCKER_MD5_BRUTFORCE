@@ -40,7 +40,7 @@ export default class Home extends Component<{}, any> {
       this.updateState({ ws });
     };
     ws.onmessage = message => {
-      const messageContent = message.toString();
+      const messageContent = message.data;
       this.updateState({ result: messageContent, lastResultDate: Date.now() });
     };
     this.updateState({ ws, cron: new CronJob('* * * * * *', () => this.state.ws.send(this.state.hash)) });
@@ -69,9 +69,9 @@ export default class Home extends Component<{}, any> {
   render() {
     const modes = bruteForceMode.map((mode, index) => {
       return (
-        <div key={index} className={`col-md-3 col-sm-6 text-center`}>
-          <input type="checkbox" id={`checkbox-${index}`} checked={index === this.state.modeIndex} onChange={() => this.updateBruteforceMode(index)} />
-          <label htmlFor={`checkbox-${index}`}>{mode.view}</label>
+        <div key={index} className={`col-md-3 col-sm-6 text-center form-check`}>
+          <input type="checkbox" className="btn-check" id={`checkbox-${index}`} checked={index === this.state.modeIndex} onChange={() => this.updateBruteforceMode(index)} />
+          <label htmlFor={`checkbox-${index}`} className="btn btn-outline-primary w-50">{mode.view}</label>
         </div >
       )
     });

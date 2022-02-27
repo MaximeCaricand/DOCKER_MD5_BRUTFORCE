@@ -13,7 +13,7 @@ services:
       replicas: 0
 
   master:
-    build: ./master
+    image: maximecaricand/master:1.0
     ports:
       - 3100:3100
       - 3200:3200
@@ -23,7 +23,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
 
   dude:
-    build: ./dude
+    image: maximecaricand/dude:1.0
     depends_on:
       - master
     ports:
