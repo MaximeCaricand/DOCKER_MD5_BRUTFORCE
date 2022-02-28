@@ -70,6 +70,7 @@ function updateSlavesReplicas() {
         }
         console.log(message);
     });
+    // only for local docker-compose purpuse
     // docker run --network=host itytophile/hash-slave /slave ws://localhost:3200
 }
 

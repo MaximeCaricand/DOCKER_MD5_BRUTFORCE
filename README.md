@@ -6,10 +6,10 @@
 
 ## Auteur(s)
 
-|Nom|Prénom|login|email|
-|--|--|--|--|
-| CARICAND | Maxime | mc171529 | caricand.maxime@etu.univ-lehavre.fr |
-| HENRY | Florian | hf171907 | florian.henry@etu.univ-lehavre.fr |
+| Nom      | Prénom  | login    | email                               |
+| -------- | ------- | -------- | ----------------------------------- |
+| CARICAND | Maxime  | mc171529 | caricand.maxime@etu.univ-lehavre.fr |
+| HENRY    | Florian | hf171907 | florian.henry@etu.univ-lehavre.fr   |
 
 <br>
 
@@ -44,13 +44,16 @@ Comment accède-t-on à Docker dans un container ? Avec <a href="https://hub.doc
 ### Dans un premier temps
 
 Nous avons fait le serveur et le dude.<br>
-Tout se lance en local avec un _docker-compose up_
+Tout peut se lancer en local avec un _docker-compose up_ et dans un docker swarm
 
  1. **Serveur :**
 
 Il ouvre ses ports pour les websockets en 3100 et 3200.
 
-Il permet la liaison entre le dude et les dockers. Il execute la commande pour lancer des dockers qui vont essayer de décoder le mot de passe envoyé via le dude puis qui vont le renvoyer au serveur.
+3100 : connection du dude
+3200 : connection des slaves
+
+Il permet la liaison entre le dude et les dockers. Il execute la commande pour lancer des dockers (augmenter le nombre de réplicas) qui vont essayer de décoder le mot de passe envoyé via le dude puis qui vont le renvoyer au serveur.
 
 <br>
 
@@ -65,6 +68,12 @@ Il ouvre son port en 3000 pour que l'on puisse se connecter sur l'interface en <
 Lorsque le bouton 'Pause' est sélectionné, aucun paquet n'est envoyé au serveur.
 
 Lorsque l'un des autres boutons est sélectionné, des paquets sont envoyés en continues au serveur qui doit créer de nouveaux slaves pour décoder le message. La gestion des timings par mode de difficulté se fait grâce à des tâches CRON qui sont disponibles avec react-js.
+
+Les différents modes : 
+
+  - Easy : 1 hash / 5 secondes
+  - Normal : 1 hash / 3 secondes
+  - Hard : 1 hash / 1 secondes
 
 <br>
 
@@ -86,17 +95,18 @@ Une fois la première partie fonctionnelle en local, on a voulu faire un SWARM c
  1. Serveur fonctionnel
  2. Dude fonctionnel
  3. Communication entre serveur et dude fonctionnel
+ 4. Bruteforce des hashs et scaling opérationels
 
 ### Manquant
 
  1. Pas de GITLAB CI
- 2. Le SWARM ne fonctionne pas totalement car pas d'accès au dude une fois lancé
+ 2. Le SWARM ne fonctionne pas totalement car nous n'avons pas encore d'accès à l'interface (localhost:3000) via un navigateur
 
 <br>
 
 ## Pour lancer le projet
 
-Deux possibilités mais qui ne fonctionnent pas tout a fait ensemble.
+Deux possibilités mais qui ne fonctionnent pas tout à fait ensemble.
 
  1. Soit, pour accéder à l'interface et communiquer avec le serveur :
 

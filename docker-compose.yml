@@ -19,6 +19,8 @@ services:
       - 3200:3200
     networks:
       - backend
+    deploy:
+      mode: global
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
 
@@ -28,6 +30,8 @@ services:
       - master
     ports:
       - 3000:3000
+    deploy:
+      mode: global
 
 networks:
   backend:
